@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - STORAGE_BACKEND=list
+    restart: unless-stopped
