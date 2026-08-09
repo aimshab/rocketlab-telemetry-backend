@@ -54,8 +54,6 @@ Repo: [rocketlab-telemetry-frontend](https://github.com/aimshab/rocketlab-teleme
 - **Simulate backend outage** — in the header (dev only), a toggle forces API calls to fail
   client-side so error/retry UI can be exercised. Shown only when `import.meta.env.DEV` is
   true; hidden in production builds.
-- **Dev proxy** in Vite forwards `/telemetry` and `/health` to the backend so the browser
-  avoids CORS (backend does not send CORS headers).
 - **Server-side filtering** (satellite ID / status); **client-side sorting** on the loaded
   page set. The real client walks `hasMore` pages to aggregate results for the table.
 - State lives in a single `useTelemetry` hook (`useState` / `useMemo`), not Redux.
@@ -72,10 +70,7 @@ Repo: [rocketlab-telemetry-frontend](https://github.com/aimshab/rocketlab-teleme
 4. **Validation** — ISO 8601 timestamps; altitude and velocity must be `> 0`; non-empty
    `satelliteId`.
 5. **Frontend ↔ backend contract** — same CRUD paths; real mode expects backend on port
-   **3000** (or `VITE_API_PROXY_TARGET` / `VITE_API_BASE_URL`).
-6. **CORS** — in local real mode, the UI talks to Vite (port **5173**) and the proxy reaches
-   the API; production direct calls need CORS or a same-origin setup.
-7. **Mock mode** — frontend can run fully without the backend (`VITE_API_MODE=mock`).
+6. **Mock mode** — frontend can run fully without the backend (`VITE_API_MODE=mock`).
 
 ---
 
@@ -121,8 +116,7 @@ npm install
 npm run dev
 
 # Or mock API (no backend)
-# PowerShell:  $env:VITE_API_MODE="mock"; npm run dev
-# bash/zsh:    VITE_API_MODE=mock npm run dev
+# bash:    VITE_API_MODE=mock npm run dev
 ```
 
 UI: http://localhost:5173 (typical Vite URL).
