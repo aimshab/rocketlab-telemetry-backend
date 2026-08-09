@@ -1,5 +1,10 @@
 # Satellite Telemetry API
 
+For the full system overview (backend + frontend, assumptions, how to run both apps
+together, and live deployments), see
+[README_SYSTEM_OVERVIEW.md](https://github.com/aimshab/rocketlab-telemetry-backend/blob/main/README_SYSTEM_OVERVIEW.md).
+
+
 REST API for viewing, filtering, and managing satellite telemetry data.
 Built with **Python + FastAPI** and an in-memory SQLite store.
 
@@ -14,17 +19,6 @@ pip install -r requirements-dev.txt
 
 # Optional: copy .env.example to .env and tune SEED_* / CORS_ORIGINS
 uvicorn app.main:app --reload --port 3000
-```
-
-### CORS
-
-`CORSMiddleware` allows the local Vite origins by default
-(`http://localhost:5173`, `http://127.0.0.1:5173`). Set `CORS_ORIGINS` to a
-comma-separated list of additional frontend origins (e.g. your production
-domain):
-
-```bash
-CORS_ORIGINS=https://your-frontend.example.com
 ```
 
 ### Startup seed
@@ -140,6 +134,17 @@ docker build -t satellite-telemetry-api .
 docker run --rm -p 3000:3000 satellite-telemetry-api
 ```
 
+### CORS
+
+`CORSMiddleware` allows the local Vite origins by default
+(`http://localhost:5173`, `http://127.0.0.1:5173`). Set `CORS_ORIGINS` to a
+comma-separated list of additional frontend origins (e.g. your production
+domain):
+
+```bash
+CORS_ORIGINS=https://your-frontend.example.com
+```
+
 ## Architecture
 
 ```
@@ -165,3 +170,5 @@ Data persists for the process lifetime and resets on restart. Filters compile
 to SQL `WHERE` clauses and pagination uses `LIMIT`/`OFFSET` (`limit+1` for
 `hasMore`). Seed entries are generated from `SEED_*` config on startup
 (defaults: 3 entries across 3 satellites).
+
+
