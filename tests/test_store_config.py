@@ -1,13 +1,10 @@
-"""Tests for storage backend and seed settings from configuration."""
+"""Tests for seed settings from configuration."""
 
 from datetime import timezone
 
 import pytest
 
 from app.config import get_settings
-from app.store import create_store
-from app.store.list_store import ListTelemetryStore
-from app.store.sqlite_store import SqliteTelemetryStore
 
 
 @pytest.fixture(autouse=True)
@@ -15,28 +12,6 @@ def clear_settings_cache():
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
-
-
-def test_default_backend_is_list(monkeypatch):
-    monkeypatch.delenv("STORAGE_BACKEND", raising=False)
-    assert get_settings().storage_backend == "list"
-    assert isinstance(create_store(), ListTelemetryStore)
-
-
-def test_list_backend(monkeypatch):
-    monkeypatch.setenv("STORAGE_BACKEND", "list")
-    assert isinstance(create_store(), ListTelemetryStore)
-
-
-def test_sqlite_backend(monkeypatch):
-    monkeypatch.setenv("STORAGE_BACKEND", "sqlite")
-    assert isinstance(create_store(), SqliteTelemetryStore)
-
-
-def test_invalid_backend_raises(monkeypatch):
-    monkeypatch.setenv("STORAGE_BACKEND", "redis")
-    with pytest.raises(ValueError, match="STORAGE_BACKEND"):
-        get_settings()
 
 
 def test_default_seed_settings(monkeypatch):

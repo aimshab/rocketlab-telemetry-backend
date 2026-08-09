@@ -1,11 +1,8 @@
-"""Concurrency smoke tests for both telemetry store backends."""
+"""Concurrency smoke tests for the SQLite telemetry store."""
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import pytest
-
 from app.models import TelemetryCreate
-from app.store.list_store import ListTelemetryStore
 from app.store.sqlite_store import SqliteTelemetryStore
 
 
@@ -19,13 +16,8 @@ def _payload(i: int) -> TelemetryCreate:
     )
 
 
-@pytest.mark.parametrize(
-    "store_factory",
-    [ListTelemetryStore, SqliteTelemetryStore],
-    ids=["list", "sqlite"],
-)
-def test_concurrent_creates(store_factory):
-    store = store_factory()
+def test_concurrent_creates():
+    store = SqliteTelemetryStore()
     store.clear()
     n = 50
 
@@ -44,13 +36,8 @@ def test_concurrent_creates(store_factory):
     assert has_more is False
 
 
-@pytest.mark.parametrize(
-    "store_factory",
-    [ListTelemetryStore, SqliteTelemetryStore],
-    ids=["list", "sqlite"],
-)
-def test_concurrent_create_and_read(store_factory):
-    store = store_factory()
+def test_concurrent_create_and_read():
+    store = SqliteTelemetryStore()
     store.clear()
 
     def writer(i: int):

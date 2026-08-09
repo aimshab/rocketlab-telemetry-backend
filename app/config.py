@@ -1,10 +1,6 @@
 """
 Application configuration loaded once before the app starts.
 
-Set STORAGE_BACKEND to choose the telemetry store implementation:
-  - list    (default) — in-process dict/list
-  - sqlite  — in-memory SQLite
-
 Seed generation is controlled by SEED_* environment variables (see SeedConfig).
 """
 
@@ -23,15 +19,12 @@ from app.seed.generator import SeedConfig
 # Load .env if present so config is available before the store is constructed.
 load_dotenv()
 
-VALID_STORAGE_BACKENDS = frozenset({"list", "sqlite"})
-
 _DEFAULT_TIME_START = "2026-08-06T00:00:00.000Z"
 _DEFAULT_TIME_END = "2026-08-07T00:00:00.000Z"
 
 
 @dataclass(frozen=True)
 class Settings:
-    storage_backend: str = "list"
     seed: SeedConfig = SeedConfig()
 
 
@@ -109,10 +102,4 @@ def _load_seed_config() -> SeedConfig:
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    backend = os.getenv("STORAGE_BACKEND", "list").strip().lower()
-    if backend not in VALID_STORAGE_BACKENDS:
-        allowed = ", ".join(sorted(VALID_STORAGE_BACKENDS))
-        raise ValueError(
-            f"Invalid STORAGE_BACKEND={backend!r}. Expected one of: {allowed}"
-        )
-    return Settings(storage_backend=backend, seed=_load_seed_config())
+    return Settings(seed=_load_seed_config())

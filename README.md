@@ -1,8 +1,7 @@
 # Satellite Telemetry API
 
 REST API for viewing, filtering, and managing satellite telemetry data.
-Built with **Python + FastAPI**. Storage is selectable at startup (`list` or
-in-memory `sqlite`).
+Built with **Python + FastAPI** and an in-memory SQLite store.
 
 ## Setup
 
@@ -13,25 +12,8 @@ python -m venv .venv
 
 pip install -r requirements-dev.txt
 
-# Optional: copy .env.example to .env and tune STORAGE_BACKEND / SEED_*
+# Optional: copy .env.example to .env and tune SEED_*
 uvicorn app.main:app --reload --port 3000
-```
-
-### Storage backend
-
-Chosen **before the app starts** via `STORAGE_BACKEND` (env or `.env`):
-
-| Value | Implementation |
-|-------|----------------|
-| `list` (default) | In-process dict/list store |
-| `sqlite` | In-memory SQLite (`mode=memory&cache=shared`) |
-
-```bash
-# Windows PowerShell
-$env:STORAGE_BACKEND="sqlite"; uvicorn app.main:app --port 3000
-
-# macOS / Linux
-STORAGE_BACKEND=sqlite uvicorn app.main:app --port 3000
 ```
 
 ### Startup seed
@@ -152,13 +134,12 @@ docker run --rm -p 3000:3000 satellite-telemetry-api
 ```
 app/
   main.py              # FastAPI app, lifespan seed
-  config.py            # Startup settings (STORAGE_BACKEND, SEED_*)
+  config.py            # Startup settings (SEED_*)
   models.py            # Pydantic request/response schemas
   seed/
     generator.py       # TelemetrySeedGenerator + SeedConfig
   store/
     base.py            # TelemetryStore interface
-    list_store.py      # Dict/list backend
     sqlite_store.py    # In-memory SQLite backend
   filters/             # Chainable filters (Python + SQL clauses)
   routes/telemetry.py  # Endpoint handlers
@@ -169,8 +150,7 @@ Dockerfile
 docker-compose.yml
 ```
 
-Data persists for the process lifetime and resets on restart. With `sqlite`,
-filters compile to SQL `WHERE` clauses and pagination uses `LIMIT`/`OFFSET`
-(`limit+1` for `hasMore`). With `list`, the same FilterChain drives an
-in-memory single-pass paginate. Seed entries are generated from `SEED_*`
-config on startup (defaults: 3 entries across 3 satellites).
+Data persists for the process lifetime and resets on restart. Filters compile
+to SQL `WHERE` clauses and pagination uses `LIMIT`/`OFFSET` (`limit+1` for
+`hasMore`). Seed entries are generated from `SEED_*` config on startup
+(defaults: 3 entries across 3 satellites).
