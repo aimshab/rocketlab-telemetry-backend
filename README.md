@@ -12,8 +12,19 @@ python -m venv .venv
 
 pip install -r requirements-dev.txt
 
-# Optional: copy .env.example to .env and tune SEED_*
+# Optional: copy .env.example to .env and tune SEED_* / CORS_ORIGINS
 uvicorn app.main:app --reload --port 3000
+```
+
+### CORS
+
+`CORSMiddleware` allows the local Vite origins by default
+(`http://localhost:5173`, `http://127.0.0.1:5173`). Set `CORS_ORIGINS` to a
+comma-separated list of additional frontend origins (e.g. your production
+domain):
+
+```bash
+CORS_ORIGINS=https://your-frontend.example.com
 ```
 
 ### Startup seed

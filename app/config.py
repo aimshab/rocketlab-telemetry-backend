@@ -2,12 +2,13 @@
 Application configuration loaded once before the app starts.
 
 Seed generation is controlled by SEED_* environment variables (see SeedConfig).
+CORS allowed origins are controlled by CORS_ORIGINS (plus local Vite defaults).
 """
 
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import lru_cache
 from typing import Optional
@@ -22,10 +23,17 @@ load_dotenv()
 _DEFAULT_TIME_START = "2026-08-06T00:00:00.000Z"
 _DEFAULT_TIME_END = "2026-08-07T00:00:00.000Z"
 
+# Vite default ports for local frontend development.
+_DEFAULT_CORS_ORIGINS = (
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+)
+
 
 @dataclass(frozen=True)
 class Settings:
     seed: SeedConfig = SeedConfig()
+    cors_origins: tuple[str, ...] = field(default_factory=lambda: _DEFAULT_CORS_ORIGINS)
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -100,6 +108,20 @@ def _load_seed_config() -> SeedConfig:
     return config
 
 
+def _load_cors_origins() -> tuple[str, ...]:
+    """
+    Local Vite origins are always allowed. CORS_ORIGINS adds more
+    (comma-separated), typically the production frontend domain.
+    """
+    raw = os.getenv("CORS_ORIGINS", "").strip()
+    extra = tuple(part.strip() for part in raw.split(",") if part.strip())
+    merged: list[str] = list(_DEFAULT_CORS_ORIGINS)
+    for origin in extra:
+        if origin not in merged:
+            merged.append(origin)
+    return tuple(merged)
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings(seed=_load_seed_config())
+    return Settings(seed=_load_seed_config(), cors_origins=_load_cors_origins())

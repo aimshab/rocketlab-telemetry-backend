@@ -7,6 +7,7 @@ Run with:
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.routes.telemetry import router as telemetry_router
@@ -28,6 +29,14 @@ app = FastAPI(
     description="REST API for managing satellite telemetry data",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(get_settings().cors_origins),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(telemetry_router)

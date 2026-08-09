@@ -18,6 +18,24 @@ class TestHealth:
         assert response.status_code == 200
         assert response.json() == {"status": "ok"}
 
+    def test_cors_allows_local_vite_origin(self, client):
+        origin = "http://localhost:5173"
+        response = client.get("/health", headers={"Origin": origin})
+        assert response.status_code == 200
+        assert response.headers.get("access-control-allow-origin") == origin
+
+    def test_cors_preflight_allows_local_vite_origin(self, client):
+        origin = "http://localhost:5173"
+        response = client.options(
+            "/telemetry",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        assert response.status_code == 200
+        assert response.headers.get("access-control-allow-origin") == origin
+
 
 class TestListTelemetry:
     def test_list_empty(self, client):

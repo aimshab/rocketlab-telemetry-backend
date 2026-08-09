@@ -29,16 +29,34 @@ def test_default_seed_settings(monkeypatch):
         "SEED_STATUS_WARNING_PCT",
         "SEED_STATUS_CRITICAL_PCT",
         "SEED_RANDOM_SEED",
+        "CORS_ORIGINS",
     ):
         monkeypatch.delenv(key, raising=False)
 
-    seed = get_settings().seed
+    settings = get_settings()
+    seed = settings.seed
     assert seed.enabled is True
     assert seed.satellite_count == 3
     assert seed.entry_count == 3
     assert seed.time_start.tzinfo == timezone.utc
     assert seed.status_healthy_pct == 70.0
     assert seed.random_seed == 42
+    assert settings.cors_origins == (
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    )
+
+
+def test_cors_origins_merge_prod_domain(monkeypatch):
+    monkeypatch.setenv(
+        "CORS_ORIGINS",
+        "https://app.example.com, http://localhost:5173",
+    )
+    assert get_settings().cors_origins == (
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://app.example.com",
+    )
 
 
 def test_seed_settings_from_env(monkeypatch):
